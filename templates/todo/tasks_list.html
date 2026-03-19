@@ -3,8 +3,17 @@
 {% block title %}Мои задачи{% endblock %}
 
 {% block content %}
-    <div style="margin-bottom: 20px;">
-        <a href="{% url 'task_create' %}" class="btn btn-primary">+ Новая задача</a>
+
+    <div style="margin-bottom: 25px; display: flex; gap: 10px;">
+        <!-- Кнопка для задач -->
+        <a href="{% url 'task_create' %}" class="btn btn-primary">
+            + Новая задача
+        </a>
+
+        <!-- Новая кнопка для категорий -->
+        <a href="{% url 'category_list' %}" class="btn btn-outline">
+            Управлять категориями
+        </a>
     </div>
 
     {% for task in tasks %}

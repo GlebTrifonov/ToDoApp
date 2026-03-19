@@ -37,11 +37,43 @@ def task_toggle(request, pk):
         task = get_object_or_404(Tasks, pk=pk, user=request.user)
         task.is_active = not task.is_active
         task.save()
-        return redirect('tasks_list')
+    return redirect('tasks_list')
 
 @login_required
 def task_delete(request, pk):
     task = get_object_or_404(Tasks, pk=pk, user=request.user)
     if request.method == 'POST':
         task.delete()
-        return redirect('tasks_list')
+    return redirect('tasks_list')
+
+
+@login_required
+def category_list(request):
+    category = Categories.objects.filter(user=request.user)
+    context = {
+        'categories': category
+    }
+    return render(request, 'todo/category_list.html', context)
+
+@login_required
+def category_create(request):
+    if request.method == 'POST':
+        form = CategoriesForm(request.POST)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.user = request.user
+            category.save()
+            return redirect('category_list')
+    else:
+        form = CategoriesForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'todo/category_form.html', context)
+
+@login_required
+def category_delete(request, pk):
+    category = get_object_or_404(Categories, pk=pk, user=request.user)
+    if request.method == 'POST':
+        category.delete()
+    return redirect('category_list')
