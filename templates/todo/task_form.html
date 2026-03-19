@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Создать задачу{% endblock %}
+
+{% block content %}
+    <div style="background: var(--card-bg); padding: 25px; border-radius: 8px;">
+        <h2>Новое дело</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-primary">Создать</button>
+                <a href="{% url 'tasks_list' %}" class="btn btn-outline" style="line-height: 24px;">Отмена</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

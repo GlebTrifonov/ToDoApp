@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои задачи{% endblock %}
+
+{% block content %}
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'task_create' %}" class="btn btn-primary">+ Новая задача</a>
+    </div>
+
+    {% for task in tasks %}
+        <div style="background: var(--card-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid 
+            {% if task.priority == 'H' %}var(--danger){% elif task.priority == 'M' %}orange{% else %}var(--success){% endif %};">
+            
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <!-- Форма-галочка -->
+                <form action="{% url 'task_toggle' task.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="checkbox" onchange="this.form.submit()" {% if not task.is_active %}checked{% endif %} 
+                           style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--success);">
+                </form>
+
+                <div style="flex-grow: 1;">
+                    <h3 style="margin: 0; {% if not task.is_active %}text-decoration: line-through; color: var(--text-dim);{% endif %}">
+                        {{ task.title }}
+                    </h3>
+                    <p style="color: var(--text-dim); font-size: 0.9em; margin: 5px 0;">{{ task.description }}</p>
+                    
+                    <div style="margin-top: 10px;">
+                        {% for cat in task.category.all %}
+                            <span style="font-size: 0.7em; background: #333; padding: 3px 8px; border-radius: 10px; margin-right: 5px;">
+                                #{{ cat.category_name }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <form action="{% url 'task_delete' task.pk %}" method="post" onsubmit="return confirm('Удалить?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">✕</button>
+                </form>
+            </div>
+        </div>
+    {% empty %}
+        <p style="text-align: center; color: var(--text-dim);">Задач пока нет. Отдыхайте!</p>
+    {% endfor %}
+{% endblock %}
