@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Tasks, Categories
-from .forms import TasksForm, CategoriesForm
+from .models import Tasks, Categories, Subtasks
+from .forms import TasksForm, CategoriesForm, SubtasksForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
@@ -8,11 +8,12 @@ from django.db.models import Q
 
 @login_required
 def tasks_list(request):
-    tasks = Tasks.objects.prefetch_related('category').filter(user=request.user)
+    tasks = Tasks.objects.prefetch_related('category', 'subtasks').filter(user=request.user)
     status = request.GET.get('status')
     priority_filter = request.GET.get('priority')
     category_filter = request.GET.get('category')
     search_query = request.GET.get('search')
+
     if search_query:
         tasks = tasks.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
     if status == 'completed':
@@ -25,19 +26,9 @@ def tasks_list(request):
     context = {
         'tasks': tasks,
         'categories': Categories.objects.filter(user=request.user),
+        'subform': SubtasksForm()
     }
     return render(request, 'todo/tasks_list.html', context)
-
-# @login_required
-# def tasks_completed(request):
-#     tasks = Tasks.objects.prefetch_related('category').filter(user=request.user, is_active=False)
-#     context ={
-#         'tasks': tasks,
-#         'title': 'Выполненные задачи'
-#     }
-#     return render(request, 'todo/tasks_list', context)
-
-
 
 
 @login_required
@@ -107,3 +98,25 @@ def category_delete(request, pk):
     if request.method == 'POST':
         category.delete()
     return redirect('category_list')
+
+"""SubTasks"""
+@login_required
+def subtask_create(request, task_pk):
+    parent_task = get_object_or_404(Tasks, pk=task_pk, user=request.user)
+    if request.method == 'POST':
+        form = SubtasksForm(request.POST)
+        if form.is_valid():
+            subtask = form.save(commit=False)
+            subtask.task = parent_task
+            subtask.save()
+    return redirect('tasks_list')
+        
+        
+
+@login_required
+def subtask_toggle(request, pk):
+    if request.method == 'POST':
+        subtask = get_object_or_404(Subtasks, pk=pk, task__user=request.user)
+        subtask.is_active = not subtask.is_active
+        subtask.save()
+        return redirect('tasks_list')

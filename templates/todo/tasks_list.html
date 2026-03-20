@@ -1,80 +1,131 @@
 {% extends 'base.html' %}
 
-{% block title %}Мои задачи{% endblock %}
+{% block title %}Мои задачи | ToDo App{% endblock %}
 
 {% block content %}
-    <!-- Блок управления (Фильтры и Сортировка) -->
-    <div style="background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <a href="{% url 'task_create' %}" class="btn btn-primary">+ Новая задача</a>
-            <a href="{% url 'category_list' %}" style="font-size: 0.9em; color: var(--text-dim);">Настройка категорий</a>
+    <!-- Блок управления: Поиск, Фильтры, Категории -->
+    <div style="background: var(--card-bg); padding: 25px; border-radius: 12px; margin-bottom: 30px; border: 1px solid var(--border);">
+        
+        <!-- Верхняя панель: Поиск и Кнопки -->
+        <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <form method="get" action="{% url 'tasks_list' %}" style="display: flex; gap: 5px; flex-grow: 1; max-width: 400px;">
+                <input type="text" name="search" placeholder="Поиск задач..." value="{{ request.GET.search|default:'' }}" 
+                       style="margin: 0; padding: 8px; flex-grow: 1;">
+                <button type="submit" class="btn btn-primary">Найти</button>
+                {% if request.GET.search %}
+                    <a href="{% url 'tasks_list' %}" class="btn btn-outline" style="line-height: 22px;">✕</a>
+                {% endif %}
+            </form>
+            
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'task_create' %}" class="btn btn-primary">+ Задача</a>
+                <a href="{% url 'category_list' %}" class="btn btn-outline">Категории</a>
+            </div>
         </div>
 
-        <!-- Фильтрация по статусу -->
-        <div style="margin-bottom: 15px; font-size: 0.9em;">
-            <span style="color: var(--text-dim); margin-right: 10px;">Статус:</span>
-            <a href="{% url 'tasks_list' %}" style="margin-right: 10px;">Все</a>
-            <a href="{% url 'tasks_list' %}?status=completed" style="margin-right: 10px;">Выполненные</a>
+        <!-- Фильтры: Статус и Приоритет -->
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; font-size: 0.9em; border-top: 1px solid #333; padding-top: 15px;">
+            <div>
+                <span style="color: var(--text-dim); margin-right: 10px;">Статус:</span>
+                <a href="{% url 'tasks_list' %}" style="margin-right: 10px; color: {% if not request.GET.status %}var(--accent){% else %}var(--text-main){% endif %};">Все</a>
+                <a href="{% url 'tasks_list' %}?status=completed" style="color: {% if request.GET.status == 'completed' %}var(--accent){% else %}var(--text-main){% endif %};">Выполненные</a>
+            </div>
+            
+            <div>
+                <span style="color: var(--text-dim); margin-right: 10px;">Приоритет:</span>
+                <a href="{% url 'tasks_list' %}?priority=H" style="color: var(--danger); margin-right: 8px;">Высокий</a>
+                <a href="{% url 'tasks_list' %}?priority=M" style="color: orange; margin-right: 8px;">Средний</a>
+                <a href="{% url 'tasks_list' %}?priority=L" style="color: var(--success);">Низкий</a>
+            </div>
         </div>
 
-        <!-- Динамические фильтры по категориям (из твоего context) -->
-        <div style="margin-bottom: 15px; font-size: 0.9em;">
-            <span style="color: var(--text-dim); margin-right: 10px;">Категории:</span>
+        <!-- Теги категорий -->
+        <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
+            <span style="color: var(--text-dim); font-size: 0.9em; align-self: center;">Категории:</span>
             {% for cat in categories %}
-                <a href="{% url 'tasks_list' %}?category={{ cat.id }}" style="margin-right: 8px; background: #333; padding: 2px 8px; border-radius: 4px;">
+                <a href="{% url 'tasks_list' %}?category={{ cat.id }}" 
+                   style="font-size: 0.8em; background: #333; padding: 3px 10px; border-radius: 12px; color: {% if request.GET.category == cat.id|stringformat:'i' %}var(--accent){% else %}var(--text-dim){% endif %}; border: 1px solid #444;">
                     #{{ cat.category_name }}
                 </a>
             {% empty %}
-                <span style="color: var(--text-dim); font-style: italic;">Нет категорий</span>
+                <span style="color: #555; font-size: 0.8em; font-style: italic;">Нет категорий</span>
             {% endfor %}
-        </div>
-        <form method="get" action="{% url 'tasks_list' %}" style="margin-bottom: 20px; display: flex; gap: 5px;">
-            <input type="text" name="search" placeholder="Поиск задач..." value="{{ request.GET.search }}" 
-                style="flex-grow: 1; margin: 0; background: #2c2c2c; border: 1px solid #444; color: white; padding: 8px; border-radius: 4px;">
-            <button type="submit" class="btn btn-primary">Найти</button>
-            {% if request.GET.search %}
-                <a href="{% url 'tasks_list' %}" class="btn btn-outline" style="line-height: 24px;">✕</a>
-            {% endif %}
-        </form>
-
-        <!-- Фильтр по приоритету -->
-        <div style="font-size: 0.9em;">
-            <span style="color: var(--text-dim); margin-right: 10px;">Приоритет:</span>
-            <a href="{% url 'tasks_list' %}?priority=H" style="color: var(--danger); margin-right: 10px;">Высокий</a>
-            <a href="{% url 'tasks_list' %}?priority=M" style="color: orange; margin-right: 10px;">Средний</a>
-            <a href="{% url 'tasks_list' %}?priority=L" style="color: var(--success);">Низкий</a>
         </div>
     </div>
 
-    <!-- Список задач (твой текущий цикл) -->
-    <div id="tasks-container">
+    <!-- Основной список задач -->
+    <div id="tasks-list">
         {% for task in tasks %}
-            <!-- ... твой текущий код карточки задачи ... -->
-            <div style="background: var(--card-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid 
-                {% if task.priority == 'H' %}var(--danger){% elif task.priority == 'M' %}orange{% else %}var(--success){% endif %};">
+            <div style="background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid 
+                {% if task.priority == 'H' %}var(--danger){% elif task.priority == 'M' %}orange{% else %}var(--success){% endif %}; position: relative;">
                 
-                <div style="display: flex; align-items: flex-start; gap: 10px;">
-                    <form action="{% url 'task_toggle' task.pk %}" method="post">
+                <!-- Шапка карточки -->
+                <div style="display: flex; align-items: flex-start; gap: 15px;">
+                    <!-- Чекбокс основной задачи -->
+                    <form action="{% url 'task_toggle' task.pk %}" method="post" style="margin: 0;">
                         {% csrf_token %}
                         <input type="checkbox" onchange="this.form.submit()" {% if not task.is_active %}checked{% endif %} 
-                               style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--success);">
+                               style="width: 22px; height: 22px; cursor: pointer; accent-color: var(--success);">
                     </form>
 
                     <div style="flex-grow: 1;">
-                        <h3 style="margin: 0; {% if not task.is_active %}text-decoration: line-through; color: var(--text-dim);{% endif %}">
+                        <h3 style="margin: 0; font-size: 1.2em; {% if not task.is_active %}text-decoration: line-through; color: var(--text-dim);{% endif %}">
                             {{ task.title }}
                         </h3>
-                        <p style="color: var(--text-dim); font-size: 0.9em; margin: 5px 0;">{{ task.description }}</p>
+                        {% if task.description %}
+                            <p style="color: var(--text-dim); font-size: 0.95em; margin: 8px 0;">{{ task.description }}</p>
+                        {% endif %}
+                        
+                        <!-- Категории задачи -->
+                        <div style="margin-top: 10px;">
+                            {% for cat in task.category.all %}
+                                <span style="font-size: 0.75em; color: var(--accent); margin-right: 10px;">#{{ cat.category_name }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <!-- ПОДЗАДАЧИ (Subtasks) -->
+                        <div style="margin-top: 20px; padding-left: 15px; border-left: 2px solid #333;">
+                            <p style="font-size: 0.8em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 10px;">Чек-лист:</p>
+                            
+                            {% for sub in task.subtasks.all %}
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                    <form action="{% url 'subtask_toggle' sub.pk %}" method="post" style="margin: 0; line-height: 0;">
+                                        {% csrf_token %}
+                                        <input type="checkbox" onchange="this.form.submit()" {% if not sub.is_active %}checked{% endif %} 
+                                               style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent);">
+                                    </form>
+                                    <span style="font-size: 0.9em; {% if not sub.is_active %}text-decoration: line-through; color: var(--text-dim);{% endif %}">
+                                        {{ sub.title }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+
+                            <!-- Форма быстрого добавления подзадачи -->
+                            <form action="{% url 'subtask_create' task.pk %}" method="post" style="display: flex; margin-top: 15px; gap: 5px;">
+                                {% csrf_token %}
+                                <input type="text" name="title" placeholder="Добавить шаг..." required 
+                                       style="margin: 0; padding: 5px 10px; font-size: 0.85em; background: #1a1a1a; border-color: #444;">
+                                <button type="submit" class="btn btn-primary" style="padding: 0 12px; font-size: 1em;">+</button>
+                            </form>
+                        </div>
                     </div>
 
-                    <form action="{% url 'task_delete' task.pk %}" method="post">
+                    <!-- Кнопка удаления основной задачи -->
+                    <form action="{% url 'task_delete' task.pk %}" method="post" onsubmit="return confirm('Удалить задачу?')">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">✕</button>
+                        <button type="submit" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.2em;">✕</button>
                     </form>
+                </div>
+
+                <div style="margin-top: 15px; font-size: 0.75em; color: #555; text-align: right;">
+                    Создано: {{ task.created_at|date:"d.m.Y H:i" }}
                 </div>
             </div>
         {% empty %}
-            <p style="text-align: center; color: var(--text-dim); margin-top: 50px;">Задач не найдено по этим фильтрам.</p>
+            <div style="text-align: center; padding: 50px; color: var(--text-dim);">
+                <h3>Задач не найдено</h3>
+                <p>Попробуйте сбросить фильтры или создать новую задачу.</p>
+            </div>
         {% endfor %}
     </div>
 {% endblock %}

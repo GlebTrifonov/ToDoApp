@@ -37,3 +37,12 @@ class Tasks(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class Subtasks(models.Model):
+    title = models.CharField(max_length=50, verbose_name='Заголовок')
+    is_active = models.BooleanField(default=True, verbose_name='Статус')
+    task = models.ForeignKey(Tasks, on_delete=models.CASCADE, related_name='subtasks')
+    def __str__(self):
+        return self.title
+    
