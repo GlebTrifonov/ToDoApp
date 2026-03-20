@@ -2,15 +2,39 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Tasks, Categories
 from .forms import TasksForm, CategoriesForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
+""""TASKS"""
 
 @login_required
 def tasks_list(request):
     tasks = Tasks.objects.prefetch_related('category').filter(user=request.user)
+    status = request.GET.get('status')
+    priority_filter = request.GET.get('priority')
+    category_filter = request.GET.get('category')
+    if status == 'completed':
+        tasks = tasks.filter(is_active=False)
+    if priority_filter:
+        tasks = tasks.filter(priority=priority_filter)
+    if category_filter:
+        tasks = tasks.filter(category__id=category_filter)
+    
     context = {
         'tasks': tasks,
+        'categories': Categories.objects.filter(user=request.user),
     }
     return render(request, 'todo/tasks_list.html', context)
+
+# @login_required
+# def tasks_completed(request):
+#     tasks = Tasks.objects.prefetch_related('category').filter(user=request.user, is_active=False)
+#     context ={
+#         'tasks': tasks,
+#         'title': 'Выполненные задачи'
+#     }
+#     return render(request, 'todo/tasks_list', context)
+
+
 
 
 @login_required
@@ -39,6 +63,7 @@ def task_toggle(request, pk):
         task.save()
     return redirect('tasks_list')
 
+
 @login_required
 def task_delete(request, pk):
     task = get_object_or_404(Tasks, pk=pk, user=request.user)
@@ -46,6 +71,8 @@ def task_delete(request, pk):
         task.delete()
     return redirect('tasks_list')
 
+
+""""CATEGORIES"""
 
 @login_required
 def category_list(request):

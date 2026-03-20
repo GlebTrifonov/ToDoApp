@@ -3,53 +3,70 @@
 {% block title %}Мои задачи{% endblock %}
 
 {% block content %}
+    <!-- Блок управления (Фильтры и Сортировка) -->
+    <div style="background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <a href="{% url 'task_create' %}" class="btn btn-primary">+ Новая задача</a>
+            <a href="{% url 'category_list' %}" style="font-size: 0.9em; color: var(--text-dim);">Настройка категорий</a>
+        </div>
 
-    <div style="margin-bottom: 25px; display: flex; gap: 10px;">
-        <!-- Кнопка для задач -->
-        <a href="{% url 'task_create' %}" class="btn btn-primary">
-            + Новая задача
-        </a>
+        <!-- Фильтрация по статусу -->
+        <div style="margin-bottom: 15px; font-size: 0.9em;">
+            <span style="color: var(--text-dim); margin-right: 10px;">Статус:</span>
+            <a href="{% url 'tasks_list' %}" style="margin-right: 10px;">Все</a>
+            <a href="{% url 'tasks_list' %}?status=completed" style="margin-right: 10px;">Выполненные</a>
+        </div>
 
-        <!-- Новая кнопка для категорий -->
-        <a href="{% url 'category_list' %}" class="btn btn-outline">
-            Управлять категориями
-        </a>
+        <!-- Динамические фильтры по категориям (из твоего context) -->
+        <div style="margin-bottom: 15px; font-size: 0.9em;">
+            <span style="color: var(--text-dim); margin-right: 10px;">Категории:</span>
+            {% for cat in categories %}
+                <a href="{% url 'tasks_list' %}?category={{ cat.id }}" style="margin-right: 8px; background: #333; padding: 2px 8px; border-radius: 4px;">
+                    #{{ cat.category_name }}
+                </a>
+            {% empty %}
+                <span style="color: var(--text-dim); font-style: italic;">Нет категорий</span>
+            {% endfor %}
+        </div>
+
+        <!-- Фильтр по приоритету -->
+        <div style="font-size: 0.9em;">
+            <span style="color: var(--text-dim); margin-right: 10px;">Приоритет:</span>
+            <a href="{% url 'tasks_list' %}?priority=H" style="color: var(--danger); margin-right: 10px;">Высокий</a>
+            <a href="{% url 'tasks_list' %}?priority=M" style="color: orange; margin-right: 10px;">Средний</a>
+            <a href="{% url 'tasks_list' %}?priority=L" style="color: var(--success);">Низкий</a>
+        </div>
     </div>
 
-    {% for task in tasks %}
-        <div style="background: var(--card-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid 
-            {% if task.priority == 'H' %}var(--danger){% elif task.priority == 'M' %}orange{% else %}var(--success){% endif %};">
-            
-            <div style="display: flex; align-items: flex-start; gap: 10px;">
-                <!-- Форма-галочка -->
-                <form action="{% url 'task_toggle' task.pk %}" method="post">
-                    {% csrf_token %}
-                    <input type="checkbox" onchange="this.form.submit()" {% if not task.is_active %}checked{% endif %} 
-                           style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--success);">
-                </form>
+    <!-- Список задач (твой текущий цикл) -->
+    <div id="tasks-container">
+        {% for task in tasks %}
+            <!-- ... твой текущий код карточки задачи ... -->
+            <div style="background: var(--card-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid 
+                {% if task.priority == 'H' %}var(--danger){% elif task.priority == 'M' %}orange{% else %}var(--success){% endif %};">
+                
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <form action="{% url 'task_toggle' task.pk %}" method="post">
+                        {% csrf_token %}
+                        <input type="checkbox" onchange="this.form.submit()" {% if not task.is_active %}checked{% endif %} 
+                               style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--success);">
+                    </form>
 
-                <div style="flex-grow: 1;">
-                    <h3 style="margin: 0; {% if not task.is_active %}text-decoration: line-through; color: var(--text-dim);{% endif %}">
-                        {{ task.title }}
-                    </h3>
-                    <p style="color: var(--text-dim); font-size: 0.9em; margin: 5px 0;">{{ task.description }}</p>
-                    
-                    <div style="margin-top: 10px;">
-                        {% for cat in task.category.all %}
-                            <span style="font-size: 0.7em; background: #333; padding: 3px 8px; border-radius: 10px; margin-right: 5px;">
-                                #{{ cat.category_name }}
-                            </span>
-                        {% endfor %}
+                    <div style="flex-grow: 1;">
+                        <h3 style="margin: 0; {% if not task.is_active %}text-decoration: line-through; color: var(--text-dim);{% endif %}">
+                            {{ task.title }}
+                        </h3>
+                        <p style="color: var(--text-dim); font-size: 0.9em; margin: 5px 0;">{{ task.description }}</p>
                     </div>
-                </div>
 
-                <form action="{% url 'task_delete' task.pk %}" method="post" onsubmit="return confirm('Удалить?')">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">✕</button>
-                </form>
+                    <form action="{% url 'task_delete' task.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">✕</button>
+                    </form>
+                </div>
             </div>
-        </div>
-    {% empty %}
-        <p style="text-align: center; color: var(--text-dim);">Задач пока нет. Отдыхайте!</p>
-    {% endfor %}
+        {% empty %}
+            <p style="text-align: center; color: var(--text-dim); margin-top: 50px;">Задач не найдено по этим фильтрам.</p>
+        {% endfor %}
+    </div>
 {% endblock %}
