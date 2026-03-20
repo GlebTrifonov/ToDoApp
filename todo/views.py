@@ -12,6 +12,9 @@ def tasks_list(request):
     status = request.GET.get('status')
     priority_filter = request.GET.get('priority')
     category_filter = request.GET.get('category')
+    search_query = request.GET.get('search')
+    if search_query:
+        tasks = tasks.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
     if status == 'completed':
         tasks = tasks.filter(is_active=False)
     if priority_filter:

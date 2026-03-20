@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Добро пожаловать | ToDo App{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 60px 20px; background: var(--card-bg); border-radius: 16px; border: 1px solid #333;">
+    <h1 style="font-size: 2.5em; margin-bottom: 20px;">
+        Организуй свои дела <span style="color: var(--accent);">правильно</span>
+    </h1>
+    <p style="color: var(--text-dim); font-size: 1.1em; line-height: 1.6; margin-bottom: 40px; max-width: 500px; margin-left: auto; margin-right: auto;">
+        Простой и мощный инструмент для управления задачами. Создавай категории, фильтруй по приоритетам и ищи важное за секунды.
+    </p>
+    
+    <div style="display: flex; gap: 15px; justify-content: center;">
+        <a href="{% url 'register' %}" class="btn btn-primary" style="padding: 12px 30px; font-size: 1.1em;">Начать бесплатно</a>
+        <a href="{% url 'login' %}" class="btn btn-outline" style="padding: 12px 30px; font-size: 1.1em;">У меня есть аккаунт</a>
+    </div>
+    
+    <div style="margin-top: 50px; display: flex; justify-content: center; gap: 30px; color: var(--text-dim); font-size: 0.9em;">
+        <span>✓ Темная тема</span>
+        <span>✓ Категории</span>
+        <span>✓ Поиск</span>
+    </div>
+</div>
+{% endblock %}

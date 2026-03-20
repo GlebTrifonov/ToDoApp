@@ -28,6 +28,14 @@
                 <span style="color: var(--text-dim); font-style: italic;">Нет категорий</span>
             {% endfor %}
         </div>
+        <form method="get" action="{% url 'tasks_list' %}" style="margin-bottom: 20px; display: flex; gap: 5px;">
+            <input type="text" name="search" placeholder="Поиск задач..." value="{{ request.GET.search }}" 
+                style="flex-grow: 1; margin: 0; background: #2c2c2c; border: 1px solid #444; color: white; padding: 8px; border-radius: 4px;">
+            <button type="submit" class="btn btn-primary">Найти</button>
+            {% if request.GET.search %}
+                <a href="{% url 'tasks_list' %}" class="btn btn-outline" style="line-height: 24px;">✕</a>
+            {% endif %}
+        </form>
 
         <!-- Фильтр по приоритету -->
         <div style="font-size: 0.9em;">

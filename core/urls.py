@@ -24,4 +24,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('tasks/', include('todo.urls')),
     path('', RedirectView.as_view(pattern_name='tasks_list'), name='root'),
+    path('accounts/', include('users.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
