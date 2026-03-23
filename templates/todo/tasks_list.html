@@ -86,7 +86,15 @@
                         <!-- ПОДЗАДАЧИ (Subtasks) -->
                         <div style="margin-top: 20px; padding-left: 15px; border-left: 2px solid #333;">
                             <p style="font-size: 0.8em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 10px;">Чек-лист:</p>
-                            
+                            <div style="margin-bottom: 12px; font-size: 0.85em;">
+                                {% if task.total > 0 %}
+                                    <span>{{ task.percent|floatformat:0 }}%</span>
+                                    <div style="width: {{ task.percent|floatformat:0 }}%;"></div>
+                                {% else %}
+                                    <span>Нет подзадач</span>
+                                {% endif %}
+                            </div>
+
                             {% for sub in task.subtasks.all %}
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                                     <form action="{% url 'subtask_toggle' sub.pk %}" method="post" style="margin: 0; line-height: 0;">

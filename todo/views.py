@@ -2,18 +2,31 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Tasks, Categories, Subtasks
 from .forms import TasksForm, CategoriesForm, SubtasksForm
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import F, Q, Count, Case, When, Value, FloatField
 
 """"TASKS"""
 
 @login_required
 def tasks_list(request):
     tasks = Tasks.objects.prefetch_related('category', 'subtasks').filter(user=request.user)
+    tasks = tasks.annotate(
+        total=Count('subtasks'),
+        completed=Count('subtasks', filter=Q(subtasks__is_active=False)),
+        percent=Case(
+            When(total=0, then=Value(0.0)),
+            default=(F('completed') * 100.0 / F('total')),
+            output_field=FloatField()
+        )
+    )
     status = request.GET.get('status')
     priority_filter = request.GET.get('priority')
     category_filter = request.GET.get('category')
     search_query = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
 
+
+    if sort_by == 'priority':
+        tasks = tasks.order_by('priority')
     if search_query:
         tasks = tasks.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
     if status == 'completed':
