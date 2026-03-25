@@ -20,5 +20,10 @@ services:
     name: Dev Server
     description: Django development server on port 8000.
     commands:
-      start: python manage.py runserver 0.0.0.0:8000
+      start: |
+        until python manage.py migrate --check 2>/dev/null; do
+          echo "Waiting for migrations..."
+          sleep 2
+        done
+        python manage.py runserver 0.0.0.0:8000
       ready: curl -f http://localhost:8000
