@@ -1,0 +1,16 @@
+image: gitpod/workspace-python-browser
+
+tasks:
+  - init: |
+      python3 -m venv venv
+      source venv/bin/activate
+      pip install -r requirements.txt
+    command: |
+      source venv/bin/activate
+      python manage.py migrate
+      python manage.py runserver 0.0.0.0:8000
+
+ports:
+  - port: 8000
+    visibility: public
+    onOpen: open-browser
