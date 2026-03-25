@@ -1,0 +1,24 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install Python dependencies from requirements.txt.
+    command: pip install -r requirements.txt
+    triggeredBy:
+      - postDevcontainerStart
+
+  migrate:
+    name: Run migrations
+    description: Apply Django database migrations.
+    command: python manage.py migrate
+    triggeredBy:
+      - postDevcontainerStart
+    dependsOn:
+      - installDeps
+
+services:
+  dev-server:
+    name: Django Dev Server
+    description: Django development server on port 8000.
+    commands:
+      start: python manage.py runserver 0.0.0.0:8000
+      ready: curl -f http://localhost:8000
