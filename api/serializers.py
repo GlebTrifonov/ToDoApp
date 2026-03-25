@@ -16,6 +16,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['category_name', 'id']
 
 class SubtaskSerializer(serializers.ModelSerializer):
+    task = serializers.PrimaryKeyRelatedField(queryset=Tasks.objects.all())
     class Meta:
         model = Subtasks
-        fields = ['id', 'title', 'is_active']
+        fields = ['id', 'title', 'is_active', 'task']
