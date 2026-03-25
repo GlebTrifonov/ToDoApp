@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Новая категория{% endblock %}
+
+{% block content %}
+    <div style="background: var(--card-bg); padding: 30px; border-radius: 12px; max-width: 500px; margin: 0 auto;">
+        <h2 style="margin-top: 0; margin-bottom: 20px;">Создать категорию</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 8px; color: var(--text-dim);">Название категории</label>
+                {{ form.category_name }}
+                {% if form.category_name.errors %}
+                    <div style="color: var(--danger); font-size: 0.8em; margin-top: 5px;">
+                        {{ form.category_name.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: 30px; display: flex; gap: 12px;">
+                <button type="submit" class="btn btn-primary" style="flex: 2;">Сохранить</button>
+                <a href="{% url 'category_list' %}" class="btn btn-outline" style="flex: 1; text-align: center; line-height: 24px;">Отмена</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

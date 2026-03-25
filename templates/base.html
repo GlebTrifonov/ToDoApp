@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Django ToDo App{% endblock %}</title>
+    <style>
+        /* Стили для ссылок-фильтров */
+        .container a {
+            color: var(--accent); /* Светло-фиолетовый */
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .container a:hover {
+            text-decoration: underline;
+        }
+
+        /* Стили для плашек категорий в фильтрах */
+        .category-filter-item {
+            background: #333;
+            color: var(--text-main) !important;
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-right: 8px;
+            display: inline-block;
+            border: 1px solid #444;
+        }
+        /* Цветовая палитра темной темы */
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --input-bg: #2c2c2c;
+            --text-main: #e0e0e0;
+            --text-dim: #a0a0a0;
+            --accent: #bb86fc;
+            --danger: #cf6679;
+            --success: #03dac6;
+            --border: #333;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Шапка сайта */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .logo span { color: var(--accent); }
+
+        nav { display: flex; gap: 15px; align-items: center; }
+        
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        nav a:hover { color: var(--accent); }
+
+        /* Кнопки */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+        .btn-primary { 
+            background-color: var(--accent); 
+            color: #000000 !important; /* Черный текст на светлом фоне кнопки */
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-primary:hover { opacity: 0.8; }
+
+        .btn-outline { 
+            background-color: transparent; 
+            border: 1px solid var(--accent); 
+            color: var(--accent) !important; /* Фиолетовый текст */
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-outline:hover { background: rgba(187, 134, 252, 0.1); }
+
+        .btn-danger {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Общие стили для форм (авторизация, создание) */
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        form ul { list-style: none; padding: 0; } /* Стили для чекбоксов категорий */
+
+        /* Сообщения Django (Messages) */
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 4px;
+            background: #333;
+            margin-bottom: 5px;
+        }
+        .message.success { color: var(--success); }
+        .message.error { color: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="{% url 'home' %}" class="logo">ToDo <span>App</span></a>
+            
+            <nav>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'tasks_list' %}">Мои задачи</a>
+                    <a href="{% url 'category_list' %}">Категории</a>
+                    <span style="color: var(--text-dim); margin: 0 5px;">|</span>
+                    <strong style="color: var(--accent);">{{ user.username }}</strong>
+                    
+                    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger">Выйти</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">Войти</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary">Создать аккаунт</a>
+                {% endif %}
+            </nav>
+        </header>
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message.message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <main>
+            {% block content %}
+            <!-- Сюда вставляется контент из других шаблонов -->
+            {% endblock %}
+        </main>
+
+        <footer style="margin-top: 50px; text-align: center; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 20px;">
+            &copy; 2026 Python Django ToDo Project.
+        </footer>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход | ToDo App{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border);">
+    <h2 style="text-align: center; margin-bottom: 20px;">Вход в аккаунт</h2>
+    
+    {% if form.errors %}
+        <p style="color: var(--danger); font-size: 0.9em; text-align: center;">Неверное имя пользователя или пароль.</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="auth-form">
+            {{ form.as_p }}
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">
+            Войти
+        </button>
+    </form>
+    
+    <div style="margin-top: 20px; text-align: center; font-size: 0.9em;">
+        <span style="color: var(--text-dim);">Нет аккаунта?</span> 
+        <a href="{% url 'register' %}" style="color: var(--accent);">Зарегистрироваться</a>
+    </div>
+</div>
+
+<style>
+    /* Стилизация инпутов внутри формы логина */
+    .auth-form input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        color: white;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    .auth-form label {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--text-dim);
+        font-size: 0.9em;
+    }
+</style>
+{% endblock %}

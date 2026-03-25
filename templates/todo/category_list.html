@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Управление категориями{% endblock %}
+
+{% block content %}
+    <div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+        <h2>Мои категории</h2>
+        <a href="{% url 'category_create' %}" class="btn btn-primary">+ Новая</a>
+    </div>
+
+    {% if categories %}
+        <div style="display: grid; gap: 10px;">
+            {% for cat in categories %}
+                <div style="background: var(--card-bg); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--accent);">
+                    <span style="font-weight: 500; font-size: 1.1em;"># {{ cat.category_name }}</span>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <!-- Кнопка удаления -->
+                        <form action="{% url 'category_delete' cat.pk %}" method="post" onsubmit="return confirm('Удалить категорию? Это не удалит задачи, но уберет из них этот тег.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="text-align: center; color: var(--text-dim); margin-top: 40px;">
+            У вас пока нет ни одной категории. Создайте первую, чтобы группировать задачи!
+        </p>
+    {% endif %}
+
+    <div style="margin-top: 30px;">
+        <a href="{% url 'tasks_list' %}" style="font-size: 0.9em; color: var(--text-dim);">← Назад к списку задач</a>
+    </div>
+{% endblock %}
