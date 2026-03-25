@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-hq@+i3(zo3csnbtt-!zn)8eji63l$k=i=pm3a-6l=grbry6h9-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -122,3 +122,17 @@ STATIC_URL = "static/"
 
 LOGIN_REDIRECT_URL = 'tasks_list'
 LOGOUT_REDIRECT_URL = 'home'
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.gitpod.io',
+    'https://*.preview.app.github.dev',
+    'https://*.app.github.dev',
+]
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
