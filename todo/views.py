@@ -3,6 +3,7 @@ from .models import Tasks, Categories, Subtasks
 from .forms import TasksForm, CategoriesForm, SubtasksForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Q, Count, Case, When, Value, FloatField
+from django.core.paginator import Paginator
 
 """"TASKS"""
 
@@ -23,7 +24,14 @@ def tasks_list(request):
     category_filter = request.GET.get('category')
     search_query = request.GET.get('search')
     sort_by = request.GET.get('sort_by')
-
+    filter_params ={
+        'status': request.GET.get('status'),
+        'priority': request.GET.get('priority'),
+        'category': request.GET.get('category'),
+        'search': request.GET.get('search'),
+        'sort_by': request.GET.get('sort_by'),
+    }
+    filter_params = {k: v for k, v in filter_params.items() if v}
 
     if sort_by == 'priority':
         tasks = tasks.order_by('priority')
@@ -36,11 +44,17 @@ def tasks_list(request):
     if category_filter:
         tasks = tasks.filter(category__id=category_filter)
     
+    paginator = Paginator(tasks, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'tasks': tasks,
+        'page': page_obj,
         'categories': Categories.objects.filter(user=request.user),
-        'subform': SubtasksForm()
+        'subform': SubtasksForm(),
+        'filter_params': filter_params,
     }
+
     return render(request, 'todo/tasks_list.html', context)
 
 

@@ -55,7 +55,7 @@
 
     <!-- Основной список задач -->
     <div id="tasks-list">
-        {% for task in tasks %}
+        {% for task in page %}
             <div style="background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid 
                 {% if task.priority == 'H' %}var(--danger){% elif task.priority == 'M' %}orange{% else %}var(--success){% endif %}; position: relative;">
                 
@@ -136,4 +136,24 @@
             </div>
         {% endfor %}
     </div>
+
+    <!-- Пагинация -->
+    {% if page.has_other_pages %}
+    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 30px;">
+        {% if page.has_previous %}
+            <a href="?status={{ request.GET.status|default:'' }}&priority={{ request.GET.priority|default:'' }}&category={{ request.GET.category|default:'' }}&search={{ request.GET.search|default:'' }}&page={{ page.previous_page_number }}" 
+            class="btn btn-outline">← Предыдущая</a>
+        {% endif %}
+        
+        <span style="padding: 8px 16px; background: var(--card-bg); border-radius: 6px;">
+            Страница {{ page.number }} из {{ page.paginator.num_pages }}
+        </span>
+        
+        {% if page.has_next %}
+            <a href="?status={{ request.GET.status|default:'' }}&priority={{ request.GET.priority|default:'' }}&category={{ request.GET.category|default:'' }}&search={{ request.GET.search|default:'' }}&page={{ page.next_page_number }}" 
+            class="btn btn-outline">Следующая →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
 {% endblock %}
