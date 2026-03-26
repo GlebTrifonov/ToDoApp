@@ -73,8 +73,8 @@ def task_toggle(request, pk):
 
 @login_required
 def task_delete(request, pk):
-    task = get_object_or_404(Tasks, pk=pk, user=request.user)
     if request.method == 'POST':
+        task = get_object_or_404(Tasks, pk=pk, user=request.user)
         task.delete()
     return redirect('tasks_list')
 
