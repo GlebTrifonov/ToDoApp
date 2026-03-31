@@ -10,6 +10,28 @@ from django.core.paginator import Paginator
 @login_required
 def tasks_list(request):
     tasks = Tasks.objects.prefetch_related('category', 'subtasks').filter(user=request.user)
+
+    """Get params"""
+    get_params ={
+        'status': request.GET.get('status'),
+        'priority': request.GET.get('priority'),
+        'category': request.GET.get('category'),
+        'search': request.GET.get('search'),
+        'sort_by': request.GET.get('sort_by'),
+    }
+    filter_params = {k: v for k, v in get_params.items() if v}
+
+    """Filter"""
+    if get_params['status'] == 'completed':
+        tasks = tasks.filter(is_active=False)
+    if get_params['priority']:
+        tasks = tasks.filter(priority=get_params['priority'])
+    if get_params['category']:
+        tasks = tasks.filter(category__id=get_params['category'])
+    if get_params['search']:
+        tasks = tasks.filter(Q(title__icontains=get_params['search']) | Q(description__icontains=get_params['search']))    
+
+    """Annotating"""
     tasks = tasks.annotate(
         total=Count('subtasks'),
         completed=Count('subtasks', filter=Q(subtasks__is_active=False)),
@@ -19,35 +41,23 @@ def tasks_list(request):
             output_field=FloatField()
         )
     )
-    status = request.GET.get('status')
-    priority_filter = request.GET.get('priority')
-    category_filter = request.GET.get('category')
-    search_query = request.GET.get('search')
-    sort_by = request.GET.get('sort_by')
-    filter_params ={
-        'status': request.GET.get('status'),
-        'priority': request.GET.get('priority'),
-        'category': request.GET.get('category'),
-        'search': request.GET.get('search'),
-        'sort_by': request.GET.get('sort_by'),
-    }
-    filter_params = {k: v for k, v in filter_params.items() if v}
 
-    if sort_by == 'priority':
-        tasks = tasks.order_by('priority')
-    if search_query:
-        tasks = tasks.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
-    if status == 'completed':
-        tasks = tasks.filter(is_active=False)
-    if priority_filter:
-        tasks = tasks.filter(priority=priority_filter)
-    if category_filter:
-        tasks = tasks.filter(category__id=category_filter)
-    
+    """Sorting"""
+    sort_fields = {
+        'priority_desc': '-priority',
+        'priority_asc': 'priority',
+        'created_desc': '-created_at',
+        'created_asc': 'created_at',
+    }
+    if get_params['sort_by'] in sort_fields:
+        tasks = tasks.order_by(sort_fields[get_params['sort_by']])
+
+    """Pagination"""
     paginator = Paginator(tasks, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
+    
+    """Context"""
     context = {
         'page': page_obj,
         'categories': Categories.objects.filter(user=request.user),

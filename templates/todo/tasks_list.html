@@ -27,15 +27,20 @@
         <div style="display: flex; flex-wrap: wrap; gap: 20px; font-size: 0.9em; border-top: 1px solid #333; padding-top: 15px;">
             <div>
                 <span style="color: var(--text-dim); margin-right: 10px;">Статус:</span>
-                <a href="{% url 'tasks_list' %}" style="margin-right: 10px; color: {% if not request.GET.status %}var(--accent){% else %}var(--text-main){% endif %};">Все</a>
-                <a href="{% url 'tasks_list' %}?status=completed" style="color: {% if request.GET.status == 'completed' %}var(--accent){% else %}var(--text-main){% endif %};">Выполненные</a>
+                <a href="?{% for key, value in filter_params.items %}{% if key != 'status' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" 
+                   style="margin-right: 10px; color: {% if not request.GET.status %}var(--accent){% else %}var(--text-main){% endif %};">Все</a>
+                <a href="?status=completed&{% for key, value in filter_params.items %}{% if key != 'status' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" 
+                   style="color: {% if request.GET.status == 'completed' %}var(--accent){% else %}var(--text-main){% endif %};">Выполненные</a>
             </div>
             
             <div>
                 <span style="color: var(--text-dim); margin-right: 10px;">Приоритет:</span>
-                <a href="{% url 'tasks_list' %}?priority=H" style="color: var(--danger); margin-right: 8px;">Высокий</a>
-                <a href="{% url 'tasks_list' %}?priority=M" style="color: orange; margin-right: 8px;">Средний</a>
-                <a href="{% url 'tasks_list' %}?priority=L" style="color: var(--success);">Низкий</a>
+                <a href="?priority=H&{% for key, value in filter_params.items %}{% if key != 'priority' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" 
+                   style="color: var(--danger); margin-right: 8px;">Высокий</a>
+                <a href="?priority=M&{% for key, value in filter_params.items %}{% if key != 'priority' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" 
+                   style="color: orange; margin-right: 8px;">Средний</a>
+                <a href="?priority=L&{% for key, value in filter_params.items %}{% if key != 'priority' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" 
+                   style="color: var(--success);">Низкий</a>
             </div>
         </div>
 
@@ -43,13 +48,44 @@
         <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
             <span style="color: var(--text-dim); font-size: 0.9em; align-self: center;">Категории:</span>
             {% for cat in categories %}
-                <a href="{% url 'tasks_list' %}?category={{ cat.id }}" 
+                <a href="?category={{ cat.id }}&{% for key, value in filter_params.items %}{% if key != 'category' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" 
                    style="font-size: 0.8em; background: #333; padding: 3px 10px; border-radius: 12px; color: {% if request.GET.category == cat.id|stringformat:'i' %}var(--accent){% else %}var(--text-dim){% endif %}; border: 1px solid #444;">
                     #{{ cat.category_name }}
                 </a>
             {% empty %}
                 <span style="color: #555; font-size: 0.8em; font-style: italic;">Нет категорий</span>
             {% endfor %}
+        </div>
+
+        <!-- Блок сортировки -->
+        <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span style="color: var(--text-dim); font-size: 0.9em;">Сортировка:</span>
+                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                    <a href="?{% for key, value in filter_params.items %}{% if key != 'sort_by' %}{{ key }}={{ value }}&{% endif %}{% endfor %}sort_by=priority_desc" 
+                       class="btn-outline" style="padding: 4px 10px; font-size: 0.8em;">Приоритет ↓</a>
+                    <a href="?{% for key, value in filter_params.items %}{% if key != 'sort_by' %}{{ key }}={{ value }}&{% endif %}{% endfor %}sort_by=priority_asc" 
+                       class="btn-outline" style="padding: 4px 10px; font-size: 0.8em;">Приоритет ↑</a>
+                    <a href="?{% for key, value in filter_params.items %}{% if key != 'sort_by' %}{{ key }}={{ value }}&{% endif %}{% endfor %}sort_by=created_desc" 
+                       class="btn-outline" style="padding: 4px 10px; font-size: 0.8em;">Новые ↓</a>
+                    <a href="?{% for key, value in filter_params.items %}{% if key != 'sort_by' %}{{ key }}={{ value }}&{% endif %}{% endfor %}sort_by=created_asc" 
+                       class="btn-outline" style="padding: 4px 10px; font-size: 0.8em;">Старые ↑</a>
+                </div>
+            </div>
+            
+            <!-- Индикатор текущей сортировки -->
+            {% if request.GET.sort_by %}
+                <div style="font-size: 0.8em; color: var(--accent);">
+                    Сортировка: 
+                    {% if request.GET.sort_by == 'priority_desc' %}Приоритет (высокий первый)
+                    {% elif request.GET.sort_by == 'priority_asc' %}Приоритет (низкий первый)
+                    {% elif request.GET.sort_by == 'created_desc' %}Новые первые
+                    {% elif request.GET.sort_by == 'created_asc' %}Старые первые
+                    {% endif %}
+                    <a href="?{% for key, value in filter_params.items %}{% if key != 'sort_by' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" 
+                       style="color: var(--danger); margin-left: 8px;">✕</a>
+                </div>
+            {% endif %}
         </div>
     </div>
 
@@ -89,9 +125,11 @@
                             <div style="margin-bottom: 12px; font-size: 0.85em;">
                                 {% if task.total > 0 %}
                                     <span>{{ task.percent|floatformat:0 }}%</span>
-                                    <div style="width: {{ task.percent|floatformat:0 }}%;"></div>
+                                    <div style="background: #333; border-radius: 10px; height: 6px; overflow: hidden; margin-top: 4px;">
+                                        <div style="background: var(--success); width: {{ task.percent|floatformat:0 }}%; height: 100%;"></div>
+                                    </div>
                                 {% else %}
-                                    <span>Нет подзадач</span>
+                                    <span style="color: var(--text-dim); font-style: italic;">Нет подзадач</span>
                                 {% endif %}
                             </div>
 
@@ -137,12 +175,12 @@
         {% endfor %}
     </div>
 
-    <!-- Пагинация -->
+    <!-- Пагинация с сохранением фильтров и сортировки -->
     {% if page.has_other_pages %}
     <div style="display: flex; justify-content: center; gap: 10px; margin-top: 30px;">
         {% if page.has_previous %}
-            <a href="?status={{ request.GET.status|default:'' }}&priority={{ request.GET.priority|default:'' }}&category={{ request.GET.category|default:'' }}&search={{ request.GET.search|default:'' }}&page={{ page.previous_page_number }}" 
-            class="btn btn-outline">← Предыдущая</a>
+            <a href="?status={{ request.GET.status|default:'' }}&priority={{ request.GET.priority|default:'' }}&category={{ request.GET.category|default:'' }}&search={{ request.GET.search|default:'' }}&sort_by={{ request.GET.sort_by|default:'' }}&page={{ page.previous_page_number }}" 
+               class="btn btn-outline">← Предыдущая</a>
         {% endif %}
         
         <span style="padding: 8px 16px; background: var(--card-bg); border-radius: 6px;">
@@ -150,8 +188,8 @@
         </span>
         
         {% if page.has_next %}
-            <a href="?status={{ request.GET.status|default:'' }}&priority={{ request.GET.priority|default:'' }}&category={{ request.GET.category|default:'' }}&search={{ request.GET.search|default:'' }}&page={{ page.next_page_number }}" 
-            class="btn btn-outline">Следующая →</a>
+            <a href="?status={{ request.GET.status|default:'' }}&priority={{ request.GET.priority|default:'' }}&category={{ request.GET.category|default:'' }}&search={{ request.GET.search|default:'' }}&sort_by={{ request.GET.sort_by|default:'' }}&page={{ page.next_page_number }}" 
+               class="btn btn-outline">Следующая →</a>
         {% endif %}
     </div>
     {% endif %}
