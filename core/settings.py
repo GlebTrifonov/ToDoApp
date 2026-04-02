@@ -45,14 +45,18 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    #Порядок тут важен!!! Пример: Сессия должна быть раньше аутентификации ьк аунтефикация использует сессии
     "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware", #управляет сессиями
     "django.middleware.common.CommonMiddleware",
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
+    'debug_toolbar.middleware.DebugToolbarMiddleware', #Дэбагер
+    "django.middleware.csrf.CsrfViewMiddleware", #защита от CSRF
+    "django.contrib.auth.middleware.AuthenticationMiddleware", #request.user
+    "django.contrib.messages.middleware.MessageMiddleware", # Флэш сообщения
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    
+    # Castom middleware
+    'todo.middleware.RequestLogMiddleware',
 ]
 
 ROOT_URLCONF = "core.urls"
