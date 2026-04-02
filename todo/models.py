@@ -31,12 +31,26 @@ class Tasks(models.Model):
     priority = models.CharField(max_length=1, choices=Priority.choices, default=Priority.MID, verbose_name='Приоритет')
     created_at = models.DateTimeField(auto_now_add=True)
 
-
     def __str__(self):
         return self.title
 
     class Meta:
         ordering = ['-created_at']
+
+
+class TaskHistory(models.Model):
+    task = models.ForeignKey(Tasks, on_delete=models.CASCADE, related_name='history')
+    class Action(models.TextChoices):
+        CREATED = 'created', 'Создана'
+        UPDATED = 'updated', 'Обновлена'
+        DELETED = 'deleted', 'Удалена'
+        TOGGLED = 'toggled', 'Переключен статус'
+    action = models.CharField(choices=Action.choices, default=Action.CREATED)
+    changed_by = models.ForeignKey(User, on_delete=models.SET_NULL,null=True, blank=True, related_name='task_history_entries')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
 
 
 class Subtasks(models.Model):

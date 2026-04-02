@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Tasks, Categories, Subtasks
+from .models import Tasks, Categories, Subtasks, TaskHistory
 
 
 class SubtasksInline(admin.TabularInline):
@@ -24,3 +24,10 @@ class SubtasksAdmin(admin.ModelAdmin):
     list_display = ['title', 'is_active']
     list_filter = ['task', 'is_active']
     search_fields = ['task__title', 'title']
+
+@admin.register(TaskHistory)
+class TaskHistoryAdmin(admin.ModelAdmin):
+    list_display = ['task', 'action', 'changed_by', 'timestamp']
+    list_filter = ['action', 'timestamp']
+    search_fields = ['task__title']
+    ordering = ['-timestamp']

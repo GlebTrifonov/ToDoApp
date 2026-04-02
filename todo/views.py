@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 
 @login_required
 def tasks_list(request):
-    tasks = Tasks.objects.prefetch_related('category', 'subtasks').filter(user=request.user)
+    tasks = Tasks.objects.filter(user=request.user).prefetch_related('category', 'subtasks')
 
     """Get params"""
     get_params ={
