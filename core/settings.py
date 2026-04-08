@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'rest_framework',
     'debug_toolbar',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
+    
     'todo',
     'users',
     'api',
@@ -146,9 +149,13 @@ CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
 
 REST_FRAMEWORK = {
+    # Документация апи Без этой строки DRF не будет знать о drf-spectacular
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',      # для браузера
         'rest_framework_simplejwt.authentication.JWTAuthentication', # для токенов
@@ -157,6 +164,18 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 5
 }
+    # Настройки документации
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Мой ToDo App API',
+    'DESCRIPTION': 'API для управления задачами, категориями и подзадачами',
+    'VERSION': '1.0.0',
+    # уменьшает размер страницы(не включает штмл)
+    'SERVE_INCLUDE_SCHEMA': False,
+    # для работы без интернета
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+}
+
 #Настройка для ONA
 import socket
 hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
