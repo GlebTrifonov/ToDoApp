@@ -15,8 +15,8 @@ class RequestLogMiddleware:
 
         user = request.user.username if request.user.is_authenticated else "Anonymous"
 
-        log_message = f'[{now().strftime('%Y-%m-%d %H:%M:%S')}] {request.method} {request.path} - {response.status_code} - {duration:3f}s - {user}'
-
+        log_message = f"[{now().strftime('%Y-%m-%d %H:%M:%S')}] {request.method} {request.path} - {response.status_code} - {duration:.3f}s - {user}"
+        
         print(log_message)
 
         return response

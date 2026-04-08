@@ -46,16 +46,17 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     #Порядок тут важен!!! Пример: Сессия должна быть раньше аутентификации ьк аунтефикация использует сессии
-    "django.middleware.security.SecurityMiddleware",
+    "django.middleware.security.SecurityMiddleware", #Заставляет праузер общаться с нашим сайтом только по Https
     "django.contrib.sessions.middleware.SessionMiddleware", #управляет сессиями
-    "django.middleware.common.CommonMiddleware",
-    'debug_toolbar.middleware.DebugToolbarMiddleware', #Дэбагер
+    "django.middleware.common.CommonMiddleware", #делает сайт удобнее (Авто-слеши вконце или www к адрессу)
     "django.middleware.csrf.CsrfViewMiddleware", #защита от CSRF
     "django.contrib.auth.middleware.AuthenticationMiddleware", #request.user
     "django.contrib.messages.middleware.MessageMiddleware", # Флэш сообщения
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware", #Защита от Clickjacking(от злоумышленников)
     
+    'debug_toolbar.middleware.DebugToolbarMiddleware', #Дэбагер    
     # Castom middleware
+    
     'todo.middleware.RequestLogMiddleware',
 ]
 
@@ -147,13 +148,20 @@ CSRF_COOKIE_SECURE = True
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ]
-}
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',      # для браузера
+        'rest_framework_simplejwt.authentication.JWTAuthentication', # для токенов
+    ],
 
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 5
+}
+#Настройка для ONA
 import socket
 hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
 INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.0.1"]
-
+# Дебаггер
 DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": lambda request: DEBUG,
 }
