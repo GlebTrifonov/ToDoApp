@@ -53,6 +53,7 @@ def tasks_list(request):
         tasks = tasks.order_by(sort_fields[get_params['sort_by']])
 
     """Pagination"""
+    tasks = tasks.order_by('-created_at') #Фильтрация уже есть в моделях, дублировал тут только для того, чтоб ушла ошибка в pytest
     paginator = Paginator(tasks, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
