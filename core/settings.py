@@ -135,9 +135,10 @@ LOGIN_REDIRECT_URL = 'tasks_list'
 LOGOUT_REDIRECT_URL = 'home'
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.gitpod.io',
-    'https://*.preview.app.github.dev',
-    'https://*.app.github.dev',
+    'https://*.github.dev',
+    'https://*.githubpreview.dev',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
 ]
 
 USE_X_FORWARDED_HOST = True
