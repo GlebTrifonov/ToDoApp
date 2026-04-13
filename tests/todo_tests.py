@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth.models import User
+from rest_framework_simplejwt.tokens import AccessToken
 from todo.models import Tasks, Categories, Subtasks
 
 @pytest.fixture
@@ -115,3 +116,48 @@ def test_pagination_limit(client, test_user, test_category):
     assert 'Task 4' in content
     assert 'Task 5' in content
     assert 'Task 6' not in content
+
+
+"""API TESTS"""
+
+@pytest.mark.django_db
+def test_api_tasks_requires_auth(client, test_user):
+    
+    response_unauth = client.get('/api/tasks/')
+    assert response_unauth.status_code == 403 #Forbidden	«Учётные данные есть, но доступа нет»    Токен есть, но он не подходит; или сессия есть, но прав недостаточно
+
+    token = str(AccessToken.for_user(test_user))
+
+    response_auth = client.get(
+        '/api/tasks/',
+        HTTP_AUTHORIZATION=f'Bearer {token}'
+        )
+    assert response_auth.status_code == 200
+
+@pytest.mark.django_db
+def test_api_tasks_only_own(client):
+    user_a = User.objects.create_user(username='user_a', password='pass')
+    user_b = User.objects.create_user(username='user_b', password='pass')
+    
+    category_b = Categories.objects.create(user=user_b, category_name='B Cat')
+
+    task_b = Tasks.objects.create(
+        user=user_b,
+        title='Task of User B',
+        priority='M',
+        is_active=True
+    )
+    task_b.category.set([category_b.id])
+
+    token = str(AccessToken.for_user(user_a))
+
+    response = client.get(
+        '/api/tasks/',
+        HTTP_AUTHORIZATION=f'Bearer {token}'
+    )
+
+    import json
+    data = response.json()
+
+    titles = [task['title'] for task in data['results']]
+    assert 'Task of User B' not in titles
