@@ -57,7 +57,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware", # Флэш сообщения
     "django.middleware.clickjacking.XFrameOptionsMiddleware", #Защита от Clickjacking(от злоумышленников)
     
-    'debug_toolbar.middleware.DebugToolbarMiddleware', #Дэбагер    
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware', #Дэбагер    
     # # Castom middleware
     
     'todo.middleware.RequestLogMiddleware',

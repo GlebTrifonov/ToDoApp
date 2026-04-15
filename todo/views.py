@@ -172,7 +172,6 @@ def task_toggle(request, pk):
 def task_delete(request, pk):
     if request.method == 'POST':
         task = get_object_or_404(Tasks, pk=pk, user=request.user)
-        task.history.all().delete()
         task.delete()
     return redirect('tasks_list')
 
