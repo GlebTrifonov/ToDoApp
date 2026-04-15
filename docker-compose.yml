@@ -1,0 +1,47 @@
+# версия композа
+version: '3.9'
+
+# сприсок сервисов (контейнеров)
+services:
+  #Сервис постгреса(БД)
+  db:
+    # Образ постгреса
+    image: postgres:16
+    # Сохранение донных из базы
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Венв для постгрес
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tododb
+    ports:
+      - "5432:5432"
+
+   # Сервис приложения Django
+  app:
+    # Собирать образ из текущей директории (Dockerfile)
+    build: .
+    # Монтируем текущую папку проекта в /app внутри контейнера
+    # Это позволяет менять код без пересборки образа
+    volumes:
+      - .:/app
+    # Пробрасываем порт 8000
+    ports:
+      - "8000:8000"
+    # Переменные окружения для Django (чтобы подключиться к PostgreSQL)
+    environment:
+      POSTGRES_NAME: tododb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: db          # Имя сервиса db (docker-compose сам подставит IP)
+      POSTGRES_PORT: 5432
+    # Зависимости: db должен быть запущен до app
+    depends_on:
+      - db
+    # Команда запуска (переопределяет CMD из Dockerfile)
+    command: python manage.py runserver 0.0.0.0:8000
+
+# Определение томов (чтобы Docker управлял их хранением)
+volumes:
+  postgres_data:
