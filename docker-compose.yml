@@ -42,6 +42,19 @@ services:
     # Команда запуска (переопределяет CMD из Dockerfile)
     command: python manage.py runserver 0.0.0.0:8000
 
+    #ДОБАВЛЯЕМ РЕДИС (РЕДИС СЕРВИС ДЛЯ НАЧАЛА)
+  redis:
+    # официальный образ Redis версии 7
+    image: redis:7
+    ports:
+    # пробрасываем стандартный порт Redis
+      - "6379:6379"
+    volumes:
+    # сохраняем данные Redis между перезапусками (не обязательно для кэша, но полезно) 
+      - redis_data:/data
+
+
 # Определение томов (чтобы Docker управлял их хранением)
 volumes:
   postgres_data:
+  redis_data:

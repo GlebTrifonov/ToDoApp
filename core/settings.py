@@ -49,6 +49,11 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     #Порядок тут важен!!! Пример: Сессия должна быть раньше аутентификации ьк аунтефикация использует сессии
+                    # REDIS
+    # """Эти middleware автоматически сохраняют готовую HTML-страницу в Redis, когда пользователь её открывает.
+    #   При следующем запросе страница отдаётся из Redis, минуя Django (вьюха, шаблоны, БД)."""
+    # 'django.middleware.cache.UpdateCacheMiddleware', # Мидлвэр для кэша(редис) ПЕРВЫЙ, ЧТОБ УВПЕВАЛ СОХРАНЯТЬ ВСЕ
+    # """"""
     "django.middleware.security.SecurityMiddleware", #Заставляет праузер общаться с нашим сайтом только по Https
     "django.contrib.sessions.middleware.SessionMiddleware", #управляет сессиями
     "django.middleware.common.CommonMiddleware", #делает сайт удобнее (Авто-слеши вконце или www к адрессу)
@@ -61,9 +66,14 @@ MIDDLEWARE = [
     # # Castom middleware
     
     'todo.middleware.RequestLogMiddleware',
+
+    # #Тоже редис мидлвер ПОСЛЕДНИЙ ЧТОБ МОГ ПЕРЕХВАТИТЬ ЗАПРОС ДО ТОГО, КАК ОСТАЛЬНЫЕ НАЧНУТ РАБОТУ
+    # 'django.middleware.cache.FetchFromCacheMiddleware',
 ]
+# CACHE_MIDDLEWARE_SECONDS = 60  # кэшировать на 60 секунд СТРАНИЦУ HTML
+# CACHE_MIDDLEWARE_KEY_PREFIX = 'todoapp' # ПРЕФИКС ДЛЯ КЛЮЧА НА СЛУЧАЙ НЕСКОЛЬКИХ ПРОЕКТОВ
 
-
+"""      НЕ КЭШИРУЕМ СТРАНИЦЫ, ТК ОНИ ПЕРСОНАЛИЗИРОВАНЫ (КАЖДЫЙ ВИДИТ СВОИ ЗАДАЧИ)                  """
 
 ROOT_URLCONF = "core.urls"
 
@@ -191,4 +201,15 @@ INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.
 # Дебаггер
 DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": lambda request: DEBUG,
+}
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
 }
