@@ -52,7 +52,29 @@ services:
     volumes:
     # сохраняем данные Redis между перезапусками (не обязательно для кэша, но полезно) 
       - redis_data:/data
-
+  #ВОРКЕР СЕЛЕРИ (ВЫПОЛНЯЕТ ЗАДАЧИ)
+  celery:  
+    build: .
+    command: celery -A core worker -l info
+    volumes:
+      - .:/app
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_NAME=tododb
+    depends_on:
+      - db
+      - redis
+  #РАСПИСАНИЕ ДЛЯ ВЫПОЛНЕНИЯ ЗАДАЧ СЕЛЕРИ
+  celery-beat:
+    build: .
+    command: celery -A core beat -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
 
 # Определение томов (чтобы Docker управлял их хранением)
 volumes:

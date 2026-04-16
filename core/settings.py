@@ -217,3 +217,14 @@ TIME_ZONE = 'Europe/Minsk'
 USE_TZ = True
 # Максимальное количество записей истории на одну задачу (селери)
 TASK_HISTORY_LIMIT = 100
+
+
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_TIMEZONE = 'Europe/Minsk'
+CELERY_BEAT_SCHEDULE = {
+    'delete-old-completed-tasks': {
+        'task': 'todo.tasks.delete_old_completed_tasks',
+        'schedule': 86400.0,  # раз в сутки (в секундах)
+    },
+}
