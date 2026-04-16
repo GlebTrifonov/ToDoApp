@@ -215,3 +215,5 @@ CACHES = {
 }
 TIME_ZONE = 'Europe/Minsk'
 USE_TZ = True
+# Максимальное количество записей истории на одну задачу (селери)
+TASK_HISTORY_LIMIT = 100
