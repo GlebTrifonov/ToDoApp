@@ -31,27 +31,30 @@ class Tasks(models.Model):
     is_active = models.BooleanField(default=True, verbose_name='Статус выполнения')
     priority = models.CharField(max_length=1, choices=Priority.choices, default=Priority.MID, verbose_name='Приоритет')
     created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.title
 
     class Meta:
         ordering = ['-created_at']
+        verbose_name_plural = 'Задачи'
 
 
 class TaskHistory(models.Model):
-    task = models.ForeignKey(Tasks, on_delete=models.CASCADE, related_name='history')
+    task = models.ForeignKey(Tasks, on_delete=models.CASCADE, related_name='history', verbose_name='Задача')
     class Action(models.TextChoices):
         CREATED = 'created', 'Создана'
         UPDATED = 'updated', 'Обновлена'
         DELETED = 'deleted', 'Удалена'
         TOGGLED = 'toggled', 'Переключен статус'
-    action = models.CharField(choices=Action.choices, default=Action.CREATED)
-    changed_by = models.ForeignKey(User, on_delete=models.SET_NULL,null=True, blank=True, related_name='task_history_entries')
-    timestamp = models.DateTimeField(auto_now_add=True)
+    action = models.CharField(choices=Action.choices, default=Action.CREATED, verbose_name='Статус')
+    changed_by = models.ForeignKey(User, on_delete=models.SET_NULL,null=True, blank=True, related_name='task_history_entries', verbose_name='Кем изменено')
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name='Время и дата')
 
     class Meta:
         ordering = ['-timestamp']
+        verbose_name_plural = 'Истории задач'
 
 
 class Subtasks(models.Model):
@@ -60,4 +63,6 @@ class Subtasks(models.Model):
     task = models.ForeignKey(Tasks, on_delete=models.CASCADE, related_name='subtasks')
     def __str__(self):
         return self.title
+    class Meta:
+        verbose_name_plural = 'Подзадачи'
     

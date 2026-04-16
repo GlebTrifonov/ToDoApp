@@ -213,3 +213,5 @@ CACHES = {
         }
     }
 }
+TIME_ZONE = 'Europe/Minsk'
+USE_TZ = True

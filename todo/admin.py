@@ -8,7 +8,7 @@ class SubtasksInline(admin.TabularInline):
 
 @admin.register(Tasks)
 class TasksAdmin(admin.ModelAdmin):
-    list_display = ['title','description','created_at','is_active','priority']
+    list_display = ['title','description','created_at','is_active','priority', 'completed_at']
     list_filter = ['category', 'is_active']
     search_fields = ['category__category_name', 'priority', 'title']
     inlines = [SubtasksInline]

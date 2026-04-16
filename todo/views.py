@@ -6,6 +6,7 @@ from django.db.models import F, Q, Count, Case, When, Value, FloatField
 from django.core.paginator import Paginator
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils import timezone
 
 
 """"TASKS"""
@@ -163,7 +164,12 @@ def task_create(request):
 def task_toggle(request, pk):
     if request.method == 'POST':
         task = get_object_or_404(Tasks, pk=pk, user=request.user)
+        old_toggle = task.is_active
         task.is_active = not task.is_active
+        if old_toggle is True:
+            task.completed_at = timezone.now()
+        else:
+            task.completed_at = None
         task.save()
     return redirect('tasks_list')
 
