@@ -5,6 +5,9 @@ class TasksForm(forms.ModelForm):
     class Meta:
         model = Tasks
         fields = ['title', 'description', 'category', 'priority']
+        widgets = {
+            'category': forms.CheckboxSelectMultiple(),
+        }        
 
 class CategoriesForm(forms.ModelForm):
     class Meta:

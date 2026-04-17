@@ -7,8 +7,39 @@
         <h2>Новое дело</h2>
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <div style="margin-top: 20px; display: flex; gap: 10px;">
+            
+            {% for field in form %}
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-dim); font-weight: 500;">
+                        {{ field.label }}
+                    </label>
+                    
+                    {% if field.name == 'category' %}
+                        <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px;">
+                            {% for checkbox in field %}
+                                <label style="display: flex; align-items: center; gap: 8px; background: var(--input-bg); padding: 6px 14px; border-radius: 20px; cursor: pointer;">
+                                    {{ checkbox.tag }}
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    {% elif field.name == 'description' %}
+                        <textarea name="{{ field.name }}" 
+                            style="width: 100%; min-height: 120px; padding: 10px; background: var(--input-bg); border: 1px solid var(--border); color: white; border-radius: 4px; box-sizing: border-box; resize: none;"
+                            {% if field.field.required %}required{% endif %}>{{ field.value|default:'' }}</textarea>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    
+                    {% if field.errors %}
+                        <div style="color: var(--danger); font-size: 0.8em; margin-top: 5px;">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <div style="margin-top: 30px; display: flex; gap: 10px;">
                 <button type="submit" class="btn btn-primary">Создать</button>
                 <a href="{% url 'tasks_list' %}" class="btn btn-outline" style="line-height: 24px;">Отмена</a>
             </div>
