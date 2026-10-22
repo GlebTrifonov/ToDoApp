@@ -1,6 +1,6 @@
 # ToDo App
 
-Простое приложение для управления задачами на Django с поддержкой Docker.
+Приложение для управления задачами на Django: веб-интерфейс и REST API, фоновые задачи на Celery, запуск в Docker.
 
 ## Технологии
 
@@ -8,6 +8,7 @@
 - Django 6.0
 - Django REST Framework
 - PostgreSQL
+- Celery + Redis (автоудаление истории задач)
 - Docker / Docker Compose
 - pytest (тесты)
 - GitHub Actions (CI)
@@ -21,50 +22,63 @@
    python -m venv venv
    source venv/bin/activate  # Linux/Mac
    # или
-   venv\Scripts\activate  # Windows
+   venv\Scripts\activate     # Windows
+   ```
 
-2. Зависимости
-    pip install -r requirements.txt
+2. Установи зависимости:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-3. Миграции
-    python manage.py migrate
+3. Примени миграции:
+   ```bash
+   python manage.py migrate
+   ```
 
-4. СОздание суперюзера для админки
-    python manage.py createsuperuser
+4. Создай суперпользователя для админки:
+   ```bash
+   python manage.py createsuperuser
+   ```
 
-5. Запускаем сервер
-    python manage.py runserver
+5. Запусти сервер:
+   ```bash
+   python manage.py runserver
+   ```
 
-                """     ЗАПУСК ЧЕРЕЗ DOCKER !!!          """
+### Запуск через Docker
 
-1. СБОРКА И ЗАПУСК КОНТЕЙНЕРА
-    docker-compose up --build
+1. Собери и запусти контейнеры:
+   ```bash
+   docker-compose up --build
+   ```
 
-2. МИГРАЦИИ В НОВОМ ТЕРМИНАЛЕ(не в открывшимся)
-    docker-compose exec app python manage.py migrage
+2. В новом терминале примени миграции:
+   ```bash
+   docker-compose exec app python manage.py migrate
+   ```
 
-3. СОЗДАНИЕ СУПЕРЮЗЕРА ЧЕРЕЗ ДОКЕР
-    docker-compose exec app python manage.py createsuperuser
+3. Создай суперпользователя:
+   ```bash
+   docker-compose exec app python manage.py createsuperuser
+   ```
 
-4. ОТКРЫТЬ САЙТ:
-    http://localhost:8000
+4. Открой сайт: http://localhost:8000
 
+## Тесты
 
-                """     ТЕСТЫ !!!          """           
-1. БЕЗ ДОКЕР
-    pytest
+```bash
+pytest                            # без Docker
+docker-compose exec app pytest    # в Docker
+```
 
-2. С ДОКЕРОМ
-    docker-compose exec app pytest
+## Структура проекта
 
-
-                """     СТРУКТУРА ПРОЕКТА          """                
-
+```
 ToDoApp/
 ├── .devcontainer/       # Конфигурация Codespace
 ├── .github/             # GitHub Actions (CI)
 ├── api/                 # DRF API
-├── core/                # Настройки проекта
+├── core/                # Настройки проекта, Celery
 ├── tests/               # Тесты (pytest)
 ├── todo/                # Основное приложение
 ├── users/               # Авторизация
@@ -72,3 +86,4 @@ ToDoApp/
 ├── docker-compose.yml   # Оркестрация контейнеров
 ├── requirements.txt     # Зависимости
 └── manage.py
+```
