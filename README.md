@@ -40,10 +40,13 @@
    python manage.py createsuperuser
    ```
 
-5. Запусти сервер:
+5. Запусти сервер (для разработки включи `DEBUG`):
    ```bash
+   export DJANGO_DEBUG=True   # Windows: set DJANGO_DEBUG=True
    python manage.py runserver
    ```
+
+Настройки берутся из переменных окружения: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `POSTGRES_*`.
 
 ### Запуск через Docker
 
